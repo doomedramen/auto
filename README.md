@@ -3,6 +3,7 @@
 `auto` is a CLI tool that wraps npm, yarn, pnpm, bun, and other package managers to automatically detect the package manager and forward commands. It simplifies working with multiple JavaScript and TypeScript package managers by detecting the appropriate one based on the project files.
 
 ## Features
+
 - Automatically detects the package manager based on lock or configuration files.
 - Forwards commands and arguments to the detected package manager.
 - Supports npm, yarn, pnpm, bun, Deno, jspm, and Rome.
@@ -10,6 +11,7 @@
 ## Installation
 
 ### Build from Source
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/doomedramen/auto
@@ -25,7 +27,9 @@
    ```
 
 ### Usage
+
 Run `auto` followed by the desired command. For example:
+
 ```bash
 auto install
 auto add lodash
@@ -33,7 +37,9 @@ auto run build
 ```
 
 ## How It Works
+
 `auto` detects the package manager by checking for the following files in the current directory:
+
 - `yarn.lock` → yarn
 - `package-lock.json` → npm
 - `pnpm-lock.yaml` → pnpm
@@ -45,4 +51,5 @@ auto run build
 It then forwards the command and arguments to the detected package manager.
 
 ## License
+
 This project is licensed under the MIT License.
