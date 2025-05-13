@@ -1,11 +1,11 @@
 # Auto
 
-`auto` is a CLI tool that wraps npm, yarn, pnpm, and bun to automatically detect the package manager and forward commands. It simplifies working with multiple JavaScript package managers by detecting the appropriate one based on the project files.
+`auto` is a CLI tool that wraps npm, yarn, pnpm, bun, and other package managers to automatically detect the package manager and forward commands. It simplifies working with multiple JavaScript and TypeScript package managers by detecting the appropriate one based on the project files.
 
 ## Features
-- Automatically detects the package manager based on lock files.
+- Automatically detects the package manager based on lock or configuration files.
 - Forwards commands and arguments to the detected package manager.
-- Supports npm, yarn, pnpm, and bun.
+- Supports npm, yarn, pnpm, bun, Deno, jspm, and Rome.
 
 ## Installation
 
@@ -38,6 +38,9 @@ auto run build
 - `package-lock.json` → npm
 - `pnpm-lock.yaml` → pnpm
 - `bun.lockb` → bun
+- `deno.json` or `deno.jsonc` → Deno
+- `jspm.config.js` → jspm
+- `rome.json` → Rome
 
 It then forwards the command and arguments to the detected package manager.
 
