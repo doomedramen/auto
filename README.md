@@ -55,6 +55,37 @@ It then forwards the command and arguments to the detected package manager. For 
 - **Standard Commands**: Any command supported by the detected package manager (e.g., `install`, `add`, `run`).
 - **Binary Execution**: Use `auto x <binary>` to execute binaries (e.g., `auto x create-react-app`). This works with `npx`, `pnpx`, and `bunx` depending on the package manager.
 
+## macOS Gatekeeper Warning
+
+If you encounter the following warning when running the `auto` binary on macOS:
+
+"Apple could not verify 'auto' is free of malware that may harm your Mac or compromise your privacy."
+
+### Steps to Resolve:
+
+1. **Locate the Application**:
+
+   - Open Finder and navigate to the directory containing the `auto` binary (e.g., `release/darwin-amd64/auto`).
+
+2. **Manually Allow the App**:
+
+   - Right-click (or Control-click) on the `auto` binary and select **Open**.
+   - A dialog will appear asking if you want to open the app. Click **Open**.
+
+3. **Disable Gatekeeper Temporarily (Optional)**:
+
+   - If you want to disable Gatekeeper for testing purposes, you can run the following command in the terminal:
+     ```bash
+     sudo spctl --master-disable
+     ```
+   - After testing, re-enable Gatekeeper with:
+     ```bash
+     sudo spctl --master-enable
+     ```
+
+4. **Code Signing (Long-Term Solution)**:
+   - To avoid this issue in the future, you can sign the binary with an Apple Developer ID.
+
 ## License
 
 This project is licensed under the MIT License.

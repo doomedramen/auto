@@ -1,0 +1,51 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Binaries
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.20
+
+    - name: Build Binaries
+      run: |
+        chmod +x build-release.sh
+        ./build-release.sh
+
+    - name: Compress Binaries
+      run: |
+        chmod +x compress-release.sh
+        ./compress-release.sh
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Read Version
+      id: version
+      run: echo "::set-output name=version::$(cat VERSION)"
+
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        release_name: "Release ${{ steps.version.outputs.version }}"
+        release_tag: "${{ steps.version.outputs.version }}"
+        files: "release/*.zip"
