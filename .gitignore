@@ -1,0 +1,17 @@
+# Binaries
+auto
+
+# Logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Go-specific files
+*.exe
+*.out
+*.test
