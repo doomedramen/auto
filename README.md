@@ -12,7 +12,7 @@
 ### Build from Source
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/doomedramen/auto
    cd auto
    ```
 2. Build the binary:
