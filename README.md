@@ -43,12 +43,17 @@ auto run build
 - `yarn.lock` → yarn
 - `package-lock.json` → npm
 - `pnpm-lock.yaml` → pnpm
-- `bun.lockb` → bun
+- `bun.lockb` or `bun.lock` → bun
 - `deno.json` or `deno.jsonc` → Deno
 - `jspm.config.js` → jspm
 - `rome.json` → Rome
 
-It then forwards the command and arguments to the detected package manager.
+It then forwards the command and arguments to the detected package manager. For commands like `x`, it automatically appends the appropriate prefix (`npx`, `pnpx`, or `bunx`) based on the detected package manager.
+
+### Supported Commands
+
+- **Standard Commands**: Any command supported by the detected package manager (e.g., `install`, `add`, `run`).
+- **Binary Execution**: Use `auto x <binary>` to execute binaries (e.g., `auto x create-react-app`). This works with `npx`, `pnpx`, and `bunx` depending on the package manager.
 
 ## License
 
