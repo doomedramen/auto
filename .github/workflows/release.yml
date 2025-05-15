@@ -1,0 +1,46 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Run when tag matches v*, e.g., v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21' # Use an appropriate Go version
+
+      - name: Build release packages
+        run: make release
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/darwin-amd64.zip
+            release/darwin-arm64.zip
+            release/linux-amd64.zip
+            release/linux-arm64.zip
+            release/windows-amd64.zip
+            release/windows-arm64.zip
+          name: Release ${{ github.ref_name }}
+          body: |
+            Release ${{ github.ref_name }}
+            
+            ## What's Changed
+            <!-- Add release notes here -->
+            
+            ## Installation
+            Download the appropriate binary for your platform.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
