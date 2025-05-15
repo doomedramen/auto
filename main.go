@@ -21,7 +21,7 @@ func main() {
 	command := os.Args[1]
 	args := os.Args[2:]
 
-	packageManager := detectPackageManager()
+	packageManager, projectRoot := detectPackageManager()
 	if packageManager == "" {
 		fmt.Println("No supported package manager detected.")
 		os.Exit(1)
@@ -31,43 +31,62 @@ func main() {
 	fmt.Printf("Package manager detected: %s (took %v)\n", packageManager, duration)
 
 	switch command {
-	case "build":
-		runCommand(packageManager, "run", append([]string{"build"}, args...))
 	case "x":
 		runCommand(packageManager+"x", "", args)
-	case "create":
-		runCommand(packageManager, "create", args)
 	default:
-		runCommand(packageManager, command, args)
+		scripts := getPackageJSONScripts(projectRoot)
+
+		// If it's in package.json scripts, use the 'run' prefix
+		if scripts[command] {
+			// Script command that needs 'run' prefix
+			runCommand(packageManager, "run", append([]string{command}, args...))
+		} else if len(command) > 0 && command[0] == '-' {
+			// If it starts with a dash, it's a flag or option
+			runCommand(packageManager, command, args)
+		} else {
+			// Otherwise, assume it's a direct package manager command
+			runCommand(packageManager, command, args)
+		}
 	}
 }
 
-func detectPackageManager() string {
+func detectPackageManager() (string, string) {
 	projectRoot := findProjectRoot()
 	if projectRoot == "" {
-		return ""
+		return "", ""
 	}
 
+	// Lock files definitively identify a package manager
 	if fileExists(filepath.Join(projectRoot, "yarn.lock")) {
-		return "yarn"
+		return "yarn", projectRoot
 	} else if fileExists(filepath.Join(projectRoot, "package-lock.json")) {
-		return "npm"
+		return "npm", projectRoot
 	} else if fileExists(filepath.Join(projectRoot, "pnpm-lock.yaml")) {
-		return "pnpm"
+		return "pnpm", projectRoot
 	} else if fileExists(filepath.Join(projectRoot, "bun.lockb")) || fileExists(filepath.Join(projectRoot, "bun.lock")) {
-		return "bun"
-	} else if fileExists(filepath.Join(projectRoot, "deno.json")) || fileExists(filepath.Join(projectRoot, "deno.jsonc")) {
-		return "deno"
-	} else if fileExists(filepath.Join(projectRoot, "jspm.config.js")) {
-		return "jspm"
-	} else if fileExists(filepath.Join(projectRoot, "rome.json")) {
-		return "rome"
-	} else if fileExists(filepath.Join(projectRoot, "package.json")) {
-		if pm := getPackageManagerFromPackageJSON(filepath.Join(projectRoot, "package.json")); pm != "" {
-			return pm
-		}
+		return "bun", projectRoot
 	}
-	return ""
+
+	// Check package.json for package manager specification
+	if fileExists(filepath.Join(projectRoot, "package.json")) {
+		if pm := getPackageManagerFromPackageJSON(filepath.Join(projectRoot, "package.json")); pm != "" {
+			return pm, projectRoot
+		}
+		// If package.json exists but doesn't specify a package manager, don't return anything
+	}
+
+	// Check other configuration files
+	if fileExists(filepath.Join(projectRoot, "deno.json")) || fileExists(filepath.Join(projectRoot, "deno.jsonc")) {
+		// Since we found this in the project root, we can safely assume it's a Deno project
+		// In the future, you might want to check if these files actually specify Deno as the package manager
+		return "deno", projectRoot
+	} else if fileExists(filepath.Join(projectRoot, "jspm.config.js")) {
+		return "jspm", projectRoot
+	} else if fileExists(filepath.Join(projectRoot, "rome.json")) {
+		return "rome", projectRoot
+	}
+
+	return "", ""
 }
 
 func findProjectRoot() string {
@@ -79,12 +98,30 @@ func findProjectRoot() string {
 
 	maxDepth := 20
 	for depth := 0; depth < maxDepth; depth++ {
-		// Check for common project root indicators
-		if fileExists(filepath.Join(currentDir, "package.json")) ||
-			fileExists(filepath.Join(currentDir, "yarn.lock")) ||
+		// Check for lock files which definitively identify a package manager
+		if fileExists(filepath.Join(currentDir, "yarn.lock")) ||
+			fileExists(filepath.Join(currentDir, "package-lock.json")) ||
 			fileExists(filepath.Join(currentDir, "pnpm-lock.yaml")) ||
 			fileExists(filepath.Join(currentDir, "bun.lockb")) ||
 			fileExists(filepath.Join(currentDir, "bun.lock")) {
+			return currentDir
+		}
+
+		// Check configuration files that need to specify a package manager
+		if fileExists(filepath.Join(currentDir, "package.json")) {
+			if pm := getPackageManagerFromPackageJSON(filepath.Join(currentDir, "package.json")); pm != "" {
+				return currentDir
+			}
+			// If package.json doesn't specify a package manager, continue traversing
+		}
+
+		// Check other configuration files
+		// In a future enhancement, you could also check if these files actually specify their respective package managers
+		if fileExists(filepath.Join(currentDir, "deno.json")) ||
+			fileExists(filepath.Join(currentDir, "deno.jsonc")) ||
+			fileExists(filepath.Join(currentDir, "jspm.config.js")) ||
+			fileExists(filepath.Join(currentDir, "rome.json")) {
+			// For now, we're assuming these files definitively identify their respective package managers
 			return currentDir
 		}
 
