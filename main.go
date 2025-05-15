@@ -32,7 +32,19 @@ func main() {
 
 	switch command {
 	case "x":
-		runCommand(packageManager+"x", "", args)
+		// Use 'npx' or equivalent for the 'x' command
+		if packageManager == "npm" {
+			runCommand("npx", "", args)
+		} else if packageManager == "yarn" {
+			runCommand("yarn", "dlx", args)
+		} else if packageManager == "pnpm" {
+			runCommand("pnpm", "dlx", args)
+		} else if packageManager == "bun" {
+			runCommand("bun", "x", args)
+		} else {
+			fmt.Printf("Error: 'x' command is not supported for package manager '%s'\n", packageManager)
+			os.Exit(1)
+		}
 	default:
 		scripts := getPackageJSONScripts(projectRoot)
 
