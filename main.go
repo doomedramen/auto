@@ -70,13 +70,13 @@ func detectPackageManager() (string, string) {
 
 	// Lock files definitively identify a package manager
 	if fileExists(filepath.Join(projectRoot, "yarn.lock")) {
-		return "yarn", projectRoot
-	} else if fileExists(filepath.Join(projectRoot, "package-lock.json")) {
-		return "npm", projectRoot
+	    return "yarn", projectRoot
 	} else if fileExists(filepath.Join(projectRoot, "pnpm-lock.yaml")) {
-		return "pnpm", projectRoot
+	    return "pnpm", projectRoot
 	} else if fileExists(filepath.Join(projectRoot, "bun.lockb")) || fileExists(filepath.Join(projectRoot, "bun.lock")) {
-		return "bun", projectRoot
+	    return "bun", projectRoot
+	} else if fileExists(filepath.Join(projectRoot, "package-lock.json")) {
+	    return "npm", projectRoot
 	}
 
 	// Check package.json for package manager specification
